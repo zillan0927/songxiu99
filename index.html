@@ -1,0 +1,733 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宋知世 · 叶子休</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* 全屏背景图 */
+.page-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+}
+.page-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+body {
+    font-family: 'Noto Serif SC', serif;
+    color: rgba(255,255,255,0.85);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* 角色切换 */
+#char-song:checked ~ .main-wrapper .song-panel,
+#char-song:checked ~ .main-wrapper .song-poetic-text { display: block; }
+#char-song:checked ~ .main-wrapper .ye-panel,
+#char-song:checked ~ .main-wrapper .ye-poetic-text { display: none; }
+
+#char-ye:checked ~ .main-wrapper .ye-panel,
+#char-ye:checked ~ .main-wrapper .ye-poetic-text { display: block; }
+#char-ye:checked ~ .main-wrapper .song-panel,
+#char-ye:checked ~ .main-wrapper .song-poetic-text { display: none; }
+
+#char-song:checked ~ .main-wrapper .blood-wrap .entry-song { 
+    border-color: rgba(230, 57, 70, 0.6); 
+    box-shadow: 0 0 20px rgba(230, 57, 70, 0.3);
+}
+#char-ye:checked ~ .main-wrapper .blood-wrap .entry-ye { 
+    border-color: rgba(74, 111, 165, 0.6); 
+    box-shadow: 0 0 20px rgba(74, 111, 165, 0.3);
+}
+
+.main-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px 15px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==================== 血溅残碑（含角色入口） ==================== */
+.blood-wrap {
+    width: 100%;
+    max-width: 400px;
+    height: 260px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    background: transparent;
+}
+
+/* 左侧：底图 + 角色入口框 */
+.blood-fig {
+    width: 58%;
+    height: 100%;
+    overflow: hidden;
+    flex-shrink: 0;
+    mask-image: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
+    position: relative;
+}
+
+.blood-fig img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: sepia(0.15) brightness(0.85);
+}
+
+/* 角色入口框 - 放在左侧底图区域内 */
+.char-entry {
+    position: absolute;
+    width: 48px;
+    height: 70px;
+    background: rgba(255,255,255,0.92);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+    z-index: 10;
+}
+
+.char-entry:hover {
+    transform: scale(1.08);
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+.char-entry img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    transition: transform 0.6s ease;
+    pointer-events: none;
+}
+
+.char-entry:hover img { transform: rotate(15deg); }
+
+.char-entry .entry-label {
+    font-size: 9px;
+    color: #333;
+    margin-top: 2px;
+    letter-spacing: 1px;
+    pointer-events: none;
+    font-family: 'Noto Serif SC', serif;
+}
+
+/* 两个入口框在左侧图中的位置 */
+.entry-song { top: 20%; left: 15%; }
+.entry-ye { top: 45%; left: 40%; }
+
+/* 右侧：诗句 + 血迹 */
+.blood-verse {
+    width: 42%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    padding-top: 35px;
+    gap: 6px;
+}
+
+/* 两列共用 */
+.verse-col {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-family: 'Kaiti', 'STKaiti', 'SimSun', serif;
+    font-size: 13px;
+    line-height: 1.8;
+    letter-spacing: 4px;
+    z-index: 3;
+    position: relative;
+}
+
+/* 上半部分（白字） */
+.verse-top {
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 35px;
+    gap: 6px;
+}
+.verse-top .verse-col {
+    background: linear-gradient(to bottom, #ffffffee 0%, #ffffffcc 40%, #e8e8e8 70%, #b0b0b0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.2));
+}
+
+/* 下半部分（红/蓝字） */
+.verse-bottom {
+    clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 35px;
+    gap: 6px;
+    transform: translate(-1px, 2px);
+    transition: all 0.4s ease;
+}
+.blood-wrap:hover .verse-bottom { transform: translate(-2px, 4px); }
+
+.song-poetic-text .verse-bottom .verse-col {
+    background: linear-gradient(to bottom, #e8b4b8 0%, #c45c5c 40%, #8b2020 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 4px rgba(196,92,92,0.3));
+}
+.ye-poetic-text .verse-bottom .verse-col {
+    background: linear-gradient(to bottom, #b4c8e8 0%, #5c8cc4 40%, #20408b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 4px rgba(92,140,196,0.3));
+}
+
+.verse-col-1 { padding-top: 0; }
+.verse-col-2 { padding-top: 18px; }
+
+/* 血迹层 */
+.sp { position: absolute; pointer-events: none; z-index: 1; }
+.sp-mist { width: 90px; height: 70px; top: 18%; right: 5%; background: radial-gradient(ellipse at center, rgba(139,0,0,0.12) 0%, transparent 65%); border-radius: 50%; opacity: 0.8; }
+.sp-core { width: 50px; height: 42px; top: 25%; right: 18%; background: radial-gradient(ellipse at 35% 55%, #820000 0%, #5e0000 45%, transparent 72%); border-radius: 70% 30% 55% 45% / 40% 65% 35% 60%; opacity: 0.8; transform: rotate(-12deg); }
+.sp-sub { width: 28px; height: 22px; bottom: 28%; right: 55%; background: radial-gradient(ellipse at 60% 40%, #900000 0%, #600000 50%, transparent 78%); border-radius: 35% 65% 42% 58% / 55% 38% 62% 45%; opacity: 0.65; transform: rotate(8deg); }
+.sp-ray1 { width: 55px; height: 2px; top: 30%; right: 10%; background: linear-gradient(to left, transparent, #8b0000 25%, #6b0000 70%, transparent); transform: rotate(-25deg); transform-origin: right center; opacity: 0.6; }
+.sp-ray2 { width: 40px; height: 2px; top: 20%; right: 22%; background: linear-gradient(to right, transparent, #8b0000 30%, transparent); transform: rotate(35deg); transform-origin: left center; opacity: 0.5; }
+.sp-ray3 { width: 32px; height: 1px; top: 38%; right: 30%; background: linear-gradient(to left, transparent, #7a0000 40%, transparent); transform: rotate(-50deg); opacity: 0.45; }
+.sp-drip1 { width: 3px; top: 38%; right: 25%; height: 45px; background: linear-gradient(to bottom, #8b0000 0%, #600000 50%, transparent 100%); border-radius: 1px 1px 50% 50%; opacity: 0.55; }
+.sp-drip2 { width: 2px; top: 32%; right: 35%; height: 30px; background: linear-gradient(to bottom, #7a0000, transparent); border-radius: 1px 1px 50% 50%; opacity: 0.4; }
+.sp-dots1 { width: 4px; height: 4px; background: #8b0000; border-radius: 50%; top: 12%; right: 40%; opacity: 0.75; box-shadow: 15px 8px 0 2px rgba(139,0,0,0.5), -10px 20px 0 1px rgba(139,0,0,0.6), 25px -3px 0 1px rgba(120,0,0,0.4); }
+.sp-dots2 { width: 3px; height: 3px; background: #900; border-radius: 50%; bottom: 20%; right: 12%; opacity: 0.7; box-shadow: -8px -12px 0 1px rgba(139,0,0,0.55), 12px 6px 0 2px rgba(139,0,0,0.4), -18px 3px 0 1px rgba(100,0,0,0.5); }
+
+/* ==================== 播放器 ==================== */
+#jade-player-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0 10px 0;
+    cursor: pointer;
+    z-index: 999;
+    gap: 20px;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+}
+.jade-line { height: 1px; width: 50px; opacity: 0.6; transition: all 0.5s ease; position: relative; }
+.line-left { background: linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0)); }
+.line-right { background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0)); }
+#jade-player-container:hover .jade-line { width: 80px; opacity: 1; filter: drop-shadow(0 0 3px rgba(255,255,255,0.8)); }
+#player-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; transition: transform 0.3s; }
+#player-icon:hover { transform: scale(1.1); }
+.jade-disc-wrapper { width: 32px; height: 32px; position: relative; border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+.jade-disc { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #d9d9d9); border: 1px solid rgba(255,255,255,0.8); position: relative; animation: jade-rotate 4s linear infinite; animation-play-state: paused; }
+.jade-disc::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background-color: transparent; border-radius: 50%; border: 1px solid rgba(200,200,200,0.3); box-shadow: inset 0 0 2px rgba(0,0,0,0.1); }
+.jade-disc::before { content: ''; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 2px; height: 6px; background-color: rgba(255,255,255,0.9); border-radius: 2px; box-shadow: 0 0 2px rgba(255,255,255,1); }
+@keyframes jade-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+#player-icon.paused .jade-disc { animation-play-state: paused; filter: brightness(0.95); }
+#player-icon.playing .jade-disc { animation-play-state: running; box-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 5px rgba(200,230,255,0.4); filter: brightness(1.05); }
+
+.player-info { text-align: center; margin-bottom: 15px; }
+.player-song-name { font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 2px; margin-bottom: 8px; }
+.player-mode-btn { display: inline-block; padding: 3px 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; font-family: 'Noto Serif SC', serif; }
+.player-mode-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.8); }
+.player-mode-btn.active { border-color: rgba(255,255,255,0.6); color: #fff; background: rgba(255,255,255,0.1); }
+
+/* ==================== 宿命卡 ==================== */
+.fate-card { position: relative; width: 100%; height: 450px; font-family: 'Noto Serif SC', serif; background: transparent !important; color: rgba(255,255,255,0.85); overflow: hidden; margin: 20px 0; }
+.fate-card input[type="radio"] { display: none; }
+
+.fate-nav { display: flex; justify-content: space-around; border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 18px; position: relative; z-index: 10; }
+.fate-nav label { flex: 1; text-align: center; padding: 10px 0; font-size: 13px; letter-spacing: 3px; cursor: pointer; color: rgba(255,255,255,0.35); transition: all 0.4s ease; position: relative; }
+.fate-nav label::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 0; height: 1px; background: linear-gradient(90deg, transparent, #fff, transparent); transition: all 0.4s ease; }
+.fate-nav label:hover { color: rgba(255,255,255,0.7); }
+
+.song-panel .fate-nav label:hover { color: rgba(230,57,70,0.8); }
+.song-panel .fate-nav label::after { background: linear-gradient(90deg, transparent, #E63946, transparent); }
+#song-tab1:checked ~ .fate-nav label[for="song-tab1"],
+#song-tab2:checked ~ .fate-nav label[for="song-tab2"],
+#song-tab3:checked ~ .fate-nav label[for="song-tab3"],
+#song-tab4:checked ~ .fate-nav label[for="song-tab4"] { color: #fff; font-weight: 500; text-shadow: 0 0 6px rgba(230,57,70,0.5); }
+#song-tab1:checked ~ .fate-nav label[for="song-tab1"]::after,
+#song-tab2:checked ~ .fate-nav label[for="song-tab2"]::after,
+#song-tab3:checked ~ .fate-nav label[for="song-tab3"]::after,
+#song-tab4:checked ~ .fate-nav label[for="song-tab4"]::after { width: 50%; }
+
+.ye-panel .fate-nav label:hover { color: rgba(74,111,165,0.8); }
+.ye-panel .fate-nav label::after { background: linear-gradient(90deg, transparent, #4A6FA5, transparent); }
+#ye-tab1:checked ~ .fate-nav label[for="ye-tab1"],
+#ye-tab2:checked ~ .fate-nav label[for="ye-tab2"],
+#ye-tab3:checked ~ .fate-nav label[for="ye-tab3"],
+#ye-tab4:checked ~ .fate-nav label[for="ye-tab4"] { color: #fff; font-weight: 500; text-shadow: 0 0 6px rgba(74,111,165,0.5); }
+#ye-tab1:checked ~ .fate-nav label[for="ye-tab1"]::after,
+#ye-tab2:checked ~ .fate-nav label[for="ye-tab2"]::after,
+#ye-tab3:checked ~ .fate-nav label[for="ye-tab3"]::after,
+#ye-tab4:checked ~ .fate-nav label[for="ye-tab4"]::after { width: 50%; }
+
+.content-wrapper { position: relative; width: 100%; height: 380px; }
+.panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow-y: auto; opacity: 0; visibility: hidden; transform: translateY(5px); transition: all 0.5s cubic-bezier(0.4,0,0.2,1); padding: 0 10px 10px 2px; font-size: 13px; line-height: 2.0; text-align: justify; letter-spacing: 0.5px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+.panel::-webkit-scrollbar { width: 2px; }
+.panel::-webkit-scrollbar-track { background: transparent; }
+.panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 0; }
+.panel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.6); }
+
+#song-tab1:checked ~ .content-wrapper .song-p1,
+#song-tab2:checked ~ .content-wrapper .song-p2,
+#song-tab3:checked ~ .content-wrapper .song-p3,
+#song-tab4:checked ~ .content-wrapper .song-p4 { opacity: 1; visibility: visible; transform: translateY(0); }
+
+#ye-tab1:checked ~ .content-wrapper .ye-p1,
+#ye-tab2:checked ~ .content-wrapper .ye-p2,
+#ye-tab3:checked ~ .content-wrapper .ye-p3,
+#ye-tab4:checked ~ .content-wrapper .ye-p4 { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.song-glow { font-weight: 500; background: linear-gradient(135deg, #ffffff, #e8b4b8, #c45c5c, #8b2020); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: bloodShift 4s ease-in-out infinite; border-bottom: 1px solid rgba(196,92,92,0.4); padding-bottom: 1px; }
+@keyframes bloodShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+.ye-glow { font-weight: 500; background: linear-gradient(135deg, #ffffff, #b4c8e8, #5c8cc4, #20408b); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: blueShift 4s ease-in-out infinite; border-bottom: 1px solid rgba(92,140,196,0.4); padding-bottom: 1px; }
+@keyframes blueShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+.sub-title { font-size: 14px; color: #fff; margin: 10px 0 3px 0; text-shadow: 0 0 4px rgba(255,255,255,0.3); }
+.sub-title::before { content: '「'; color: rgba(196,92,92,0.5); margin-right: 2px; }
+.sub-title::after { content: '」'; color: rgba(196,92,92,0.5); margin-left: 2px; }
+.ye-panel .sub-title::before { color: rgba(92,140,196,0.5); }
+.ye-panel .sub-title::after { color: rgba(92,140,196,0.5); }
+
+.group-title { font-size: 15px; color: #fff; font-weight: 500; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 5px; margin: 20px 0 12px 0; letter-spacing: 2px; display: flex; align-items: center; }
+.song-panel .group-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: linear-gradient(180deg, #c45c5c, #8b2020); margin-right: 10px; box-shadow: 0 0 6px rgba(196,92,92,0.6); }
+.ye-panel .group-title::before { content: ''; display: inline-block; width: 3px; height: 14px; background: linear-gradient(180deg, #5c8cc4, #20408b); margin-right: 10px; box-shadow: 0 0 6px rgba(92,140,196,0.6); }
+.group-title:first-child { margin-top: 0; }
+
+.para { margin-bottom: 16px; color: rgba(255,255,255,0.72); }
+.tags-box { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.tag { padding: 2px 10px; border: 1px solid rgba(255,255,255,0.15); border-radius: 0; font-size: 11px; color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.03); letter-spacing: 1px; }
+.story-para { text-indent: 2em; margin-bottom: 12px; color: rgba(255,255,255,0.72); }
+.quote { padding-left: 14px; margin: 16px 0 16px 1em; color: rgba(255,255,255,0.55); font-style: italic; background: linear-gradient(to right, rgba(196,92,92,0.05), transparent); padding-top: 6px; padding-bottom: 6px; }
+.ye-panel .quote { background: linear-gradient(to right, rgba(92,140,196,0.05), transparent); }
+
+/* ==================== 别久不成悲 ==================== */
+.poetic-wrapper { display: flex; align-items: flex-start; justify-content: center; background: transparent !important; padding: 60px 50px; font-family: 'Noto Serif SC', sans-serif; user-select: none; overflow: visible; }
+.slash-container { position: relative; display: flex; }
+.slash-line { position: absolute; top: 50%; left: -40%; width: 180%; height: 1.5px; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(184,15,15,0.7) 70%, #8A0303 100%); box-shadow: 0 0 10px rgba(184,15,15,0.8), 0 0 4px rgba(138,3,3,0.5); transform: rotate(-30deg); transform-origin: center; z-index: 3; pointer-events: none; transition: all 0.4s ease; }
+.ye-poetic-text .slash-line { background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(15,80,184,0.7) 70%, #03208A 100%); box-shadow: 0 0 10px rgba(15,80,184,0.8), 0 0 4px rgba(3,32,138,0.5); }
+.slice-top { display: flex; flex-direction: row; align-items: flex-start; gap: 14px; clip-path: polygon(0 0, 100% 0, 100% 35%, 0 65%); z-index: 2; }
+.slice-top .text-small, .slice-top .text-large { color: #FFFFFF !important; }
+.slice-bottom { position: absolute; top: 0; left: 0; display: flex; flex-direction: row; align-items: flex-start; gap: 14px; clip-path: polygon(0 65%, 100% 35%, 100% 100%, 0 100%); transform: translate(-4px, 5px); filter: drop-shadow(1px -1px 2px rgba(184,15,15,0.3)); z-index: 1; transition: all 0.4s ease; }
+.ye-poetic-text .slice-bottom { filter: drop-shadow(1px -1px 2px rgba(15,80,184,0.3)); }
+.poetic-wrapper:hover .slice-bottom { transform: translate(-6px, 8px); filter: drop-shadow(2px -2px 4px rgba(209,21,21,0.6)); }
+.ye-poetic-text.poetic-wrapper:hover .slice-bottom { filter: drop-shadow(2px -2px 4px rgba(21,80,209,0.6)); }
+.poetic-wrapper:hover .slash-line { transform: rotate(-30deg) translateY(2px) translateX(2px); box-shadow: 0 0 15px rgba(209,21,21,0.9), 0 0 6px rgba(184,15,15,0.8); background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(209,21,21,0.85) 65%, #B80F0F 100%); }
+.ye-poetic-text.poetic-wrapper:hover .slash-line { box-shadow: 0 0 15px rgba(21,80,209,0.9), 0 0 6px rgba(15,80,184,0.8); background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(21,80,209,0.85) 65%, #0F50B8 100%); }
+.text-small { writing-mode: vertical-rl; font-family: 'Noto Serif SC', serif !important; font-size: 14px !important; letter-spacing: 10px; margin-top: 35px; }
+.text-large { writing-mode: vertical-rl; font-family: 'Ma Shan Zheng', cursive !important; font-size: 28px !important; letter-spacing: 8px; margin-top: 0px; }
+
+/* ==================== 双模块导航 ==================== */
+.module-nav-container { font-family: 'Noto Serif SC', serif; width: 100%; color: rgba(255,255,255,0.85); margin-top: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(4px); }
+.module-nav-container input[type="radio"] { display: none; }
+.module-nav { display: flex; border-bottom: 1px solid rgba(255,255,255,0.15); }
+.module-nav label { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; letter-spacing: 2px; cursor: pointer; color: rgba(255,255,255,0.4); transition: all 0.4s ease; position: relative; }
+.module-nav label::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: #fff; transition: all 0.4s ease; box-shadow: 0 0 10px rgba(255,255,255,0.9); }
+#mod-tab1:checked ~ .module-nav label[for="mod-tab1"], #mod-tab2:checked ~ .module-nav label[for="mod-tab2"] { color: #fff; font-weight: 500; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
+#mod-tab1:checked ~ .module-nav label[for="mod-tab1"]::after, #mod-tab2:checked ~ .module-nav label[for="mod-tab2"]::after { width: 60%; }
+.module-content-wrapper { position: relative; padding: 16px; min-height: 250px; }
+.module-panel { display: none; animation: fadeIn 0.5s ease-out; }
+#mod-tab1:checked ~ .module-content-wrapper .mp-1, #mod-tab2:checked ~ .module-content-wrapper .mp-2 { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.plot-intro { font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed rgba(255,255,255,0.2); font-style: italic; letter-spacing: 0.5px; }
+.plot-intro::before { content: '※'; margin-right: 6px; color: rgba(255,255,255,0.4); }
+.plot-item { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+.plot-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.plot-cmd { display: inline-block; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); padding: 3px 8px; color: #fff; font-family: 'Courier New', Courier, monospace; font-size: 11px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.25); letter-spacing: 0.5px; box-shadow: 0 0 5px rgba(255,255,255,0.1); }
+.plot-title { font-weight: 500; color: #fff; margin-bottom: 4px; text-shadow: 0 0 4px rgba(255,255,255,0.3); font-size: 13px; }
+.mask-group-title { font-weight: 500; font-size: 14px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px; margin-top: 16px; margin-bottom: 10px; }
+.mask-group-title:first-child { margin-top: 0; }
+.mask-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.mask-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 3px 10px; font-size: 12px; color: rgba(255,255,255,0.8); }
+
+/* ==================== 状态栏 ==================== */
+.status-wrapper { width: 100%; display: flex; justify-content: flex-end; margin: 30px 0 20px 0; font-family: 'Noto Serif SC', serif; }
+.status-box { text-align: right; padding-right: 18px; border-right: 2px solid rgba(230,57,70,0.7); background: transparent !important; max-width: 400px; position: relative; }
+.status-box::before { content: ''; position: absolute; right: -5px; top: 0; width: 8px; height: 8px; background-color: rgba(230,57,70,0.9); border-radius: 1px; box-shadow: 0 0 8px rgba(230,57,70,0.5); }
+.meta-info { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 1px; margin-bottom: 6px; }
+.chapter-head { font-size: 22px; font-weight: bold; color: #e0e0e0; line-height: 1.4; letter-spacing: 2px; margin-bottom: 6px; text-shadow: 0 0 10px rgba(230,57,70,0.4); }
+.chapter-sub { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; border-top: 1px solid rgba(230,57,70,0.2); padding-top: 6px; margin-top: 4px; display: inline-block; }
+
+/* 折叠状态栏 */
+:root { --glass-bg: rgba(20,20,20,0.65); --glass-border: rgba(230,57,70,0.3); --text-main: #ffffff; --text-accent: #E63946; --text-dim: #cccccc; }
+.status-container { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 0px !important; margin-bottom: 8px; font-family: 'Noto Serif SC', serif; color: var(--text-main); box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: all 0.3s ease; }
+.status-summary { padding: 8px 10px; cursor: pointer; font-weight: 600; font-size: 0.9em; color: var(--text-accent); text-shadow: 0 0 2px rgba(230,57,70,0.4); list-style: none; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid transparent; transition: border-color 0.3s; letter-spacing: 1px; }
+.status-container[open] .status-summary { border-bottom: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); }
+.status-summary::-webkit-details-marker { display: none; }
+.status-summary::after { content: '▼'; font-size: 0.8em; color: var(--text-main); transition: transform 0.3s; }
+.status-container[open] .status-summary::after { transform: rotate(180deg); }
+.content-pad { padding: 10px; background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 100%); }
+.row-item { display: flex; flex-direction: column; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.15); }
+.row-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.lbl { font-size: 0.75em; font-weight: 500; color: var(--text-dim); margin-bottom: 2px; display: block; opacity: 0.85; }
+.val { font-size: 0.85em; color: #ffffff; font-weight: 400; line-height: 1.4; }
+.warn { color: var(--text-accent); font-family: 'Courier New', monospace; font-weight: bold; }
+.god-text { font-size: 0.7em; color: #cccccc; margin-top: 3px; font-style: italic; border-left: 2px solid var(--text-accent); padding-left: 6px; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 0 4px 4px 0; }
+.scroll-box { max-height: 80px; overflow-y: auto; font-size: 0.8em; line-height: 1.5; color: #eeeeee; padding-right: 6px; scrollbar-color: #FFFFFF rgba(255,255,255,0.05); scrollbar-width: thin; }
+.scroll-box-large { max-height: 150px; }
+.scroll-box::-webkit-scrollbar { width: 4px; }
+.scroll-box::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+.scroll-box::-webkit-scrollbar-thumb { background-color: #FFFFFF !important; background: #FFFFFF !important; border-radius: 4px; border: none; opacity: 1; }
+.quote-block { background: rgba(0,0,0,0.3); padding: 6px; border-left: 2px solid var(--text-accent); margin-top: 4px; color: #ddd; font-size: 0.8em; }
+.list-item { font-size: 0.8em; display: flex; align-items: baseline; gap: 6px; color: #eeeeee; }
+.check { color: var(--text-accent); }
+.note-section { margin-bottom: 10px; background: rgba(0,0,0,0.25); padding: 8px; border: 1px solid rgba(255,255,255,0.08); }
+.note-title { font-size: 0.8em; font-weight: bold; color: #ffffff; border-bottom: 1px solid var(--text-accent); display: inline-block; margin-bottom: 6px; padding-bottom: 2px; }
+.mem-sum { font-size: 0.8em; color: #ffffff; cursor: pointer; font-weight: bold; }
+.mem-item { font-size: 0.75em; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #dddddd; }
+</style>
+</head>
+<body>
+
+<!-- 全屏背景图 -->
+<div class="page-bg">
+    <img src="https://raw.githubusercontent.com/zillan0927/songxiu/main/beijingtu_xuemei.jpg" alt="背景">
+</div>
+
+<input type="radio" name="char-select" id="char-song" checked>
+<input type="radio" name="char-select" id="char-ye">
+
+<div class="main-wrapper">
+
+<!-- ==================== 血溅残碑 ==================== -->
+<div class="blood-wrap">
+    <div class="blood-fig">
+        <img src="https://raw.githubusercontent.com/zillan0927/songxiu/main/xuemei.png" alt="底图">
+        <!-- 角色入口框 -->
+        <label class="char-entry entry-song" for="char-song">
+            <img src="https://raw.githubusercontent.com/zillan0927/songxiu/main/sanmeitongqian.png" alt="铜钱">
+            <span class="entry-label">宋知世</span>
+        </label>
+        <label class="char-entry entry-ye" for="char-ye">
+            <img src="https://raw.githubusercontent.com/zillan0927/songxiu/main/zuimeihua.png" alt="长剑">
+            <span class="entry-label">叶子休</span>
+        </label>
+    </div>
+
+    <!-- 宋知世诗句 -->
+    <div class="blood-verse song-poetic-text">
+        <div class="sp sp-mist"></div><div class="sp sp-core"></div><div class="sp sp-sub"></div>
+        <div class="sp sp-ray1"></div><div class="sp sp-ray2"></div><div class="sp sp-ray3"></div>
+        <div class="sp sp-drip1"></div><div class="sp sp-drip2"></div>
+        <div class="sp sp-dots1"></div><div class="sp sp-dots2"></div>
+        <div class="verse-top">
+            <div class="verse-col verse-col-1">三尺灯灭处</div>
+            <div class="verse-col verse-col-2">恩仇一炉灰</div>
+        </div>
+        <div class="verse-bottom">
+            <div class="verse-col verse-col-1">三尺灯灭处</div>
+            <div class="verse-col verse-col-2">恩仇一炉灰</div>
+        </div>
+    </div>
+
+    <!-- 叶子休诗句 -->
+    <div class="blood-verse ye-poetic-text">
+        <div class="sp sp-mist"></div><div class="sp sp-core"></div><div class="sp sp-sub"></div>
+        <div class="sp sp-ray1"></div><div class="sp sp-ray2"></div><div class="sp sp-ray3"></div>
+        <div class="sp sp-drip1"></div><div class="sp sp-drip2"></div>
+        <div class="sp sp-dots1"></div><div class="sp sp-dots2"></div>
+        <div class="verse-top">
+            <div class="verse-col verse-col-1">苦也无边</div>
+            <div class="verse-col verse-col-2">爱也无边</div>
+        </div>
+        <div class="verse-bottom">
+            <div class="verse-col verse-col-1">苦也无边</div>
+            <div class="verse-col verse-col-2">爱也无边</div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 播放器 ==================== -->
+<div id="jade-player-container">
+    <div class="jade-line line-left"></div>
+    <div id="player-icon" class="paused">
+        <div class="jade-disc-wrapper"><div class="jade-disc"></div></div>
+    </div>
+    <div class="jade-line line-right"></div>
+    <audio id="audio-engine" preload="auto"></audio>
+</div>
+<div class="player-info">
+    <div class="player-song-name" id="song-name">青衣谣</div>
+    <div class="player-mode-btn" id="mode-btn" onclick="toggleMode()">顺序播放</div>
+</div>
+
+<!-- 宋知世面板 -->
+<div class="fate-card song-panel">
+    <input type="radio" name="song-tabs" id="song-tab1" checked>
+    <input type="radio" name="song-tabs" id="song-tab2">
+    <input type="radio" name="song-tabs" id="song-tab3">
+    <input type="radio" name="song-tabs" id="song-tab4">
+    <div class="fate-nav">
+        <label for="song-tab1">白骨生</label>
+        <label for="song-tab2">因果簿</label>
+        <label for="song-tab3">旧门</label>
+        <label for="song-tab4">神佛不渡</label>
+    </div>
+    <div class="content-wrapper">
+        <div class="panel song-p1">
+            <div class="tags-box">
+                <div class="tag">22岁</div><div class="tag">185</div><div class="tag">1月1日</div>
+                <div class="tag">藏鹤楼外门弟子</div><div class="tag">法修</div><div class="tag">火灵根</div><div class="tag">元婴</div>
+            </div>
+            <div class="para"><span class="song-glow">宋知世</span>，修真界的一个死人。户籍上死了，<span class="song-glow">酆都</span>的册子上活着。</div>
+            <div class="para">仙盟盟主独子，但亲爹杀了亲娘，顺便通缉他。他花了十五年织网、埋线、送走三个朋友，最后把自己也祭进了酆都，换了一副<span class="song-glow">鬼修</span>的身子回来，专门用来对付那免疫活物攻击的爹。</div>
+            <div class="para">有点消极功利主义，是面对火车难题毫不犹豫控制拉杆压死少数人换更多人活的那种人，身上因果太多，所以死后注定灰飞烟灭没有来生，偶尔也怀疑自己和生父的区别。</div>
+            <div class="para">起点文男主，但人不人鬼不鬼。超绝事业批，似乎没恋爱脑，但有一定的控制欲。活着就是为了<span class="song-glow">杀爹</span>，自认为杀完了就可以不活了。但他也是个会为了下棋输了而记仇三天、蹲在路边吃馄饨吃到满头汗的人。温情和算计在他身上同时存在，哪个都是真的。</div>
+        </div>
+        <div class="panel song-p2">
+            <div class="group-title">血亲</div>
+            <div class="para"><div class="sub-title">温群（父）</div>仙盟盟主，佛口蛇心。宋知世对他的恨并不沸腾，是<span class="song-glow">饮冰十余年凉透的血</span>。</div>
+            <div class="para"><div class="sub-title">宋青云（母，已故）</div>散修出身的渡劫强者，民间叫她青云仙子。死在自己丈夫派来的刀下，全天下以为是魔修干的。<span class="song-glow">桃木簪</span>是她留给儿子的遗物。</div>
+            <div class="group-title">长明粥铺</div>
+            <div class="para"><div class="sub-title">陆行舟（已故）</div>长明粥铺创办者，代号甲。教他很多。被俘后传信"来杀我"。<span class="song-glow">第二枚铜钱</span>。</div>
+            <div class="para"><div class="sub-title">沈墨（已故）</div>代号乙。死在一次宋知世判断不可接应的任务里。<span class="song-glow">第一枚铜钱</span>。</div>
+            <div class="para"><div class="sub-title">求渺（已故）</div>丙，符修，天机阁的小天才，但唯物，闷葫芦而有锋芒，与天斗其乐无穷。算出温群的死期，寿元耗尽。<span class="song-glow">第三枚铜钱</span>。</div>
+            <div class="group-title">羁绊</div>
+            <div class="para"><div class="sub-title">叶子休</div>他说不清是先喜欢上的还是先算计上的，也故意不去分。</div>
+        </div>
+        <div class="panel song-p3">
+            <div class="story-para">仙盟盟主温群和女侠宋青云独子，出生那年有半个修真界的人过来向他父母道贺。小时候，他还叫温知世。</div>
+            <div class="story-para">爹英俊儒雅，人面兽心，骗得娘心甘情愿放下剑，居于后宅相夫教子。</div>
+            <div class="story-para">后来娘终于发现盟主真面目，拿搜集的证据质问他，以为能劝他回头。</div>
+            <div class="story-para">爹派来的江湖高手围攻后宅时，7岁的宋知世被母亲摔出自己的家，刀光剑影一门之隔，他本该冲进去和母亲一起，但他颤抖的手怎么也推不开那扇门。</div>
+            <div class="quote">"盟主一家遭暗杀，妻子香消玉殒，儿子失踪在外，盟主伤心过度，大雨中为亡妻送葬时哭晕好几次"<br>"盟主爱子心切，寻人启事贴了满城，凡有线索重金酬谢。"</div>
+            <div class="story-para">这样的消息传得沸沸扬扬。宋知世戴着斗笠，从编纂盟主悲惨家事的说书人旁边经过。</div>
+            <div class="story-para">十五年，他一直被困在门外。</div>
+            <div class="story-para">杀了父，才能杀了当年胆怯到无法和母亲共患难的懦夫。</div>
+        </div>
+        <div class="panel song-p4">
+            <div class="para"><div class="sub-title">仙盟</div>金玉其外。盟主温群挖人灵根几十年，栽赃给魔修，满堂正道修士没一个揭穿，或者说揭穿了的都<span class="song-glow">进了土</span>。</div>
+            <div class="para"><div class="sub-title">藏鹤楼</div>宋知世藏身的外门宗派。掌门是个被现代人夺舍的咸鱼，天天搞基建，还蹲了个妖皇。地方不大，事不少。</div>
+            <div class="para"><div class="sub-title">长明粥铺</div>陆行舟创办的地下组织，以食铺为掩护追查温群罪行。成员来来去去，到现在<span class="song-glow">只剩宋知世一个人</span>，粥铺还开着，没人知道后厨曾经坐满了人。</div>
+            <div class="para"><div class="sub-title">酆都</div>宋知世的第二故乡，如果死人也能有故乡的话。他在那里签了契，交出来世，换回一副能杀温群的鬼身。和几个老鬼处得不错。</div>
+        </div>
+    </div>
+</div>
+
+<!-- 叶子休面板 -->
+<div class="fate-card ye-panel">
+    <input type="radio" name="ye-tabs" id="ye-tab1" checked>
+    <input type="radio" name="ye-tabs" id="ye-tab2">
+    <input type="radio" name="ye-tabs" id="ye-tab3">
+    <input type="radio" name="ye-tabs" id="ye-tab4">
+    <div class="fate-nav">
+        <label for="ye-tab1">少年游</label>
+        <label for="ye-tab2">红尘录</label>
+        <label for="ye-tab3">旧梦</label>
+        <label for="ye-tab4">江湖路远</label>
+    </div>
+    <div class="content-wrapper">
+        <div class="panel ye-p1">
+            <div class="tags-box">
+                <div class="tag">21岁</div><div class="tag">178</div><div class="tag">水灵根</div>
+                <div class="tag">元婴后期</div><div class="tag">剑修</div><div class="tag">散修</div>
+            </div>
+            <div class="para"><span class="ye-glow">叶子休</span>，鲜衣怒马少年郎。无门无派，孑然一身，只身一剑。</div>
+            <div class="para">潇洒俊俏的少年人，叫人看了就立马想到"意气风发"。黑色长发总束成高马尾，用长长的红色发带扎起来。劲瘦的，青涩的，很有观赏性，只是腰有点太细了。</div>
+            <div class="para">剑道风格以柔克刚，速度很快，擅长四两拨千斤。打不过就跑——呃，迂回战术。本命剑<span class="ye-glow">"醉梅花"</span>，剑如其主，半点不低调，鎏金碎银、冻玉玛瑙镶得如同孔雀开屏。</div>
+            <div class="para">曾是长明粥铺的成员，与宋知世决裂后离开。如今一介散修，浪迹天涯。</div>
+        </div>
+        <div class="panel ye-p2">
+            <div class="group-title">他如何与人相处</div>
+            <div class="para"><div class="sub-title">情感模式</div>回避型依恋。他可以与任何人谈笑，却不允许任何人靠近。给予温暖是本能，接受温暖是负担。</div>
+            <div class="para"><div class="sub-title">对宋知世</div>他说不清是先恨上的还是先放不下的。决裂时他逃了，不是因为怕死，是怕死于宋知世的算计。他怕自己在宋知世那里不过是一枚棋子。</div>
+            <div class="para"><div class="sub-title">救世主情结</div>习惯挡在别人身前，习惯说"没关系"。他不介意别人看见他的失败、嘲笑他的天真，他只要问心无愧。</div>
+            <div class="para"><div class="sub-title">骄傲</div>他认为自己拥有过美满的家庭和真心相待的人，所以没资格抱怨。痛苦在他看来是矫情的、无病呻吟的。久而久之，连"难过"都成了一种羞耻。</div>
+        </div>
+        <div class="panel ye-p3">
+            <div class="story-para">叶子休一出生就泡在漫溢的爱里，不仅家里双亲有宠爱，家外还有个竹马——宋知世的母亲宋青云与他的父母是不拘于身份行迹的莫逆之交。</div>
+            <div class="story-para">六岁，青云仙子遇难。得此噩耗，叶子休的父母奋不顾身前去相救，不料双双殒命。</div>
+            <div class="story-para">那时叶子休尚不知道发生了什么，他踉踉跄跄地被宋知世拉着："知世，我爹娘呢？青云仙子呢？我们不回家了吗？"</div>
+            <div class="story-para">宋知世告诉他："以后只有我们了。"</div>
+            <div class="story-para">从此，有宋知世的地方就是家。</div>
+            <div class="story-para">后来，他们认识了求渺。昔年的云梦，三人并躺在屋顶，喝一壶酒，赏一轮月，彼时恍惚以为，他们真的能饮风枕月、纵酒长歌。</div>
+            <div class="story-para">但恣意潇洒的前提是快意恩仇——求渺死了。这件事他们瞒着叶子休。而知情的宋知世坐视了求渺送死。</div>
+            <div class="story-para">参加求渺的葬礼时，叶子休是惝恍的。他想，宋知世连求渺的命都能袖手旁观利用起来，那下一个说不定就是自己。</div>
+            <div class="story-para">对，跑吧，决裂吧。于是他就真的逃跑了。</div>
+        </div>
+        <div class="panel ye-p4">
+            <div class="group-title">他行走江湖的方式</div>
+            <div class="para"><div class="sub-title">行侠仗义</div>路见不平拔剑相助且不留名号是基操。但因为剑太骚，每次都被认出来。</div>
+            <div class="para"><div class="sub-title">厨房杀手</div>"一出手就是毒修一辈子达不到的高度。"叶子休："什么意思？说人话。"宋知世："难吃的要命。"</div>
+            <div class="para"><div class="sub-title">不解风情</div>对待感情迟钝。别人表白，他当玩笑打哈哈。发现对方认真，就暗自兵荒马乱后严肃拒绝。</div>
+            <div class="para"><div class="sub-title">理想主义</div>无法接受有人替另一个人决定命运。生命不是可以被衡量和交换的筹码。即使世间有恶，还是得有人来做这个侠客。</div>
+        </div>
+    </div>
+</div>
+
+<!-- 别久不成悲 -->
+<div class="poetic-wrapper song-poetic-text">
+    <div class="slash-container">
+        <div class="slash-line"></div>
+        <div class="slice-top">
+            <div class="text-small">不成悲</div>
+            <div class="text-large">别久</div>
+        </div>
+        <div class="slice-bottom">
+            <div class="text-small">不成悲</div>
+            <div class="text-large">别久</div>
+        </div>
+    </div>
+</div>
+
+<div class="poetic-wrapper ye-poetic-text">
+    <div class="slash-container">
+        <div class="slash-line"></div>
+        <div class="slice-top">
+            <div class="text-small">不成悲</div>
+            <div class="text-large">别久</div>
+        </div>
+        <div class="slice-bottom">
+            <div class="text-small">不成悲</div>
+            <div class="text-large">别久</div>
+        </div>
+    </div>
+</div>
+
+<!-- 双模块导航 -->
+<div class="module-nav-container">
+    <input type="radio" name="mod-tabs" id="mod-tab1" checked>
+    <input type="radio" name="mod-tabs" id="mod-tab2">
+    <div class="module-nav">
+        <label for="mod-tab1">剧情指南</label>
+        <label for="mod-tab2">面具推荐</label>
+    </div>
+    <div class="module-content-wrapper">
+        <div class="module-panel mp-1">
+            <div class="plot-intro">开场白时是第一年春，正文上的状态栏会显示时间。一般会自动触发四季剧情，如未触发可使用下方指令。</div>
+            <div class="plot-item"><div class="plot-cmd">输入：$载入第一年春剧情</div><div class="plot-title">【葬礼与重逢】：葬礼后偶遇死者宋知世</div></div>
+            <div class="plot-item"><div class="plot-cmd">输入：$载入第一年夏剧情</div><div class="plot-title">【无名村惨案】：窥见恶意的一角，小醋一把北朔</div></div>
+            <div class="plot-item"><div class="plot-cmd">输入：$载入第一年秋剧情</div><div class="plot-title">【鬼王娶亲】：秘境中结了冥婚</div></div>
+            <div class="plot-item"><div class="plot-cmd">输入：$载入第一年冬剧情</div><div class="plot-title">【大仇得报】：温群死后，天道觉得宋知世只能活一百天</div></div>
+        </div>
+        <div class="module-panel mp-2">
+            <div class="mask-group-title">【 故人旧梦 】</div>
+            <div class="mask-list">
+                <div class="mask-item">宋青云的挚友</div><div class="mask-item">已死的长明粥铺成员</div>
+                <div class="mask-item">姑姑/舅舅</div><div class="mask-item">求渺的亲人/暗恋对象</div><div class="mask-item">师尊</div>
+            </div>
+            <div class="mask-group-title">【 神鬼殊途 】</div>
+            <div class="mask-list">
+                <div class="mask-item">孟婆</div><div class="mask-item">阎王</div>
+                <div class="mask-item">黑白无常</div><div class="mask-item">剑灵/灵宠</div>
+            </div>
+            <div class="mask-group-title">【 尘世羁绊 】</div>
+            <div class="mask-list">
+                <div class="mask-item">穿越者</div><div class="mask-item">普通人</div>
+                <div class="mask-item">宋知世的道侣</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 状态栏 -->
+<div class="status-wrapper">
+    <div class="status-box">
+        <div class="meta-info">（当前节点：第一年/春/二月初三/辰时） · （冷雾） · （云梦山后山·无名墓地）</div>
+        <div class="chapter-head">3-1=0</div>
+        <div class="chapter-sub">决裂了还往人跟前凑，脸皮修炼已臻化境。</div>
+    </div>
+</div>
+
+<details class="status-container">
+    <summary class="status-summary">状态栏</summary>
+    <div class="content-pad">
+        <div class="row-item"><span class="lbl">时间</span><span class="val">第一年/春/二月初三/辰时</span></div>
+        <div class="row-item"><span class="lbl">地点</span><span class="val">云梦山后山·无名墓地</span></div>
+        <div class="row-item"><span class="lbl">天气</span><span class="val">冷雾</span></div>
+        <div class="row-item"><span class="lbl">状态</span><span class="val warn">3-1=0</span></div>
+    </div>
+</details>
+
+</div><!-- main-wrapper -->
+
+<script>
+const playlist = ["https://raw.githubusercontent.com/zillan0927/songxiu/main/青衣谣.mp3"];
+let currentIndex = 0;
+let playMode = 'sequence';
+const audio = document.getElementById('audio-engine');
+const playerIcon = document.getElementById('player-icon');
+const modeBtn = document.getElementById('mode-btn');
+
+function loadTrack(index) {
+    audio.src = playlist[index];
+    audio.load();
+}
+
+function togglePlay() {
+    if (audio.paused) {
+        let playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                playerIcon.classList.remove('paused');
+                playerIcon.classList.add('playing');
+            }).catch(error => { console.log("Waiting for interaction."); });
+        }
+    } else {
+        audio.pause();
+        playerIcon.classList.remove('playing');
+        playerIcon.classList.add('paused');
+    }
+}
+
+audio.addEventListener('ended', function() {
+    if (playMode === 'loop') {
+        audio.currentTime = 0;
+        audio.play();
+    } else {
+        currentIndex = (currentIndex + 1) % playlist.length;
+        loadTrack(currentIndex);
+        audio.play();
+    }
+});
+
+document.getElementById('jade-player-container').addEventListener('click', togglePlay);
+
+function toggleMode() {
+    if (playMode === 'sequence') {
+        playMode = 'loop';
+        modeBtn.textContent = '单曲循环';
+        modeBtn.classList.add('active');
+    } else {
+        playMode = 'sequence';
+        modeBtn.textContent = '顺序播放';
+        modeBtn.classList.remove('active');
+    }
+}
+
+loadTrack(currentIndex);
+setTimeout(() => { togglePlay(); }, 1000);
+</script>
+
+</body>
+</html>
