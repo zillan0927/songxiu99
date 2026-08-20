@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>宋休 · 神佛不渡</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <title>宋休 · 明朝会</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -17,12 +17,12 @@
       overflow-x: hidden;
     }
     
-    /* 全局遮罩增强文字可读性 */
+    /* 全局遮罩 — 调亮 */
     body::before {
       content: '';
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.25);
       z-index: -1;
     }
     
@@ -30,6 +30,148 @@
       max-width: 800px;
       margin: 0 auto;
       padding: 40px 20px;
+    }
+    
+    /* ========== 播放器（置顶） ========== */
+    .player-section {
+      margin-bottom: 50px;
+    }
+    
+    #zero-jade-player-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: 20px 0 10px;
+      cursor: pointer;
+      z-index: 999;
+      gap: 20px;
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+    }
+    
+    .zero-jade-line {
+      height: 1px;
+      width: 50px;
+      opacity: 0.6;
+      transition: all 0.5s ease;
+      position: relative;
+    }
+    .line-left { background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)); }
+    .line-right { background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)); }
+    
+    #zero-jade-player-container:hover .zero-jade-line {
+      width: 80px;
+      opacity: 1;
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+    }
+    
+    #zero-player-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      transition: transform 0.3s;
+    }
+    #zero-player-icon:hover { transform: scale(1.1); }
+    
+    .jade-disc-wrapper {
+      width: 32px;
+      height: 32px;
+      position: relative;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+    
+    .jade-disc {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #d9d9d9);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      position: relative;
+      animation: zero-jade-rotate 4s linear infinite;
+      animation-play-state: paused;
+    }
+    
+    .jade-disc::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px; height: 8px;
+      background-color: transparent;
+      border-radius: 50%;
+      border: 1px solid rgba(200, 200, 200, 0.3);
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
+    }
+    
+    .jade-disc::before {
+      content: '';
+      position: absolute;
+      top: 4px; left: 50%;
+      transform: translateX(-50%);
+      width: 2px; height: 6px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 2px;
+      box-shadow: 0 0 2px rgba(255,255,255,1);
+    }
+    
+    @keyframes zero-jade-rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    #zero-player-icon.paused .jade-disc {
+      animation-play-state: paused;
+      filter: brightness(0.95);
+    }
+    
+    #zero-player-icon.playing .jade-disc {
+      animation-play-state: running;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 5px rgba(200, 230, 255, 0.4);
+      filter: brightness(1.05);
+    }
+    
+    /* 播放器控制栏 */
+    .player-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 8px 20px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(4px);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ctrl-btn:hover { color: #fff; transform: scale(1.1); }
+    
+    .ctrl-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    
+    .song-name {
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.6);
+      min-width: 120px;
+      text-align: center;
+      font-family: 'Noto Serif SC', serif;
     }
     
     /* ========== 模块一：角色介绍 ========== */
@@ -116,13 +258,14 @@
       gap: 6px;
     }
     
+    /* 书法手写体诗句 */
     .censy-blood-wrap .censy-col {
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      font-family: 'Kaiti', 'STKaiti', 'SimSun', serif;
-      font-size: 13px;
-      line-height: 1.8;
-      letter-spacing: 4px;
+      font-family: 'Zhi Mang Xing', 'Ma Shan Zheng', 'Kaiti', 'STKaiti', cursive;
+      font-size: 18px;
+      line-height: 1.6;
+      letter-spacing: 6px;
       z-index: 3;
       position: relative;
       background: linear-gradient(to bottom, #ffffffee 0%, #ffffffcc 40%, #c4a0a0 70%, #8b3a3a 100%);
@@ -134,7 +277,7 @@
     }
     
     .censy-blood-wrap .censy-col-1 { padding-top: 0; }
-    .censy-blood-wrap .censy-col-2 { padding-top: 18px; }
+    .censy-blood-wrap .censy-col-2 { padding-top: 24px; }
     
     /* 血迹层 */
     .censy-blood-wrap .censy-sp {
@@ -260,7 +403,6 @@
     .char-intro-card .zw-nav label:hover { color: rgba(255, 255, 255, 0.7); }
     
     /* 宋知世红色高亮 */
-    .char-sz .zw-nav label.active-tab,
     #zw-tab1-sz:checked ~ .zw-nav label[for="zw-tab1-sz"],
     #zw-tab2-sz:checked ~ .zw-nav label[for="zw-tab2-sz"],
     #zw-tab3-sz:checked ~ .zw-nav label[for="zw-tab3-sz"] {
@@ -277,7 +419,6 @@
     }
     
     /* 叶子休靛蓝色高亮 */
-    .char-yz .zw-nav label.active-tab,
     #zw-tab1-yz:checked ~ .zw-nav label[for="zw-tab1-yz"],
     #zw-tab2-yz:checked ~ .zw-nav label[for="zw-tab2-yz"],
     #zw-tab3-yz:checked ~ .zw-nav label[for="zw-tab3-yz"] {
@@ -431,22 +572,23 @@
     
     .zw-para { margin-bottom: 16px; color: rgba(255, 255, 255, 0.72); }
     
+    /* 改小的标签 */
     .z-tags-box {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 18px;
-      padding-bottom: 16px;
+      gap: 5px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
     .z-tag {
-      padding: 2px 10px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 1px 7px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 0;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.03);
-      letter-spacing: 1px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.02);
+      letter-spacing: 0.5px;
     }
     
     .z-story-para {
@@ -560,146 +702,6 @@
       margin-top: 0px;
     }
     
-    /* ========== 播放器 ========== */
-    #zero-jade-player-container {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      margin: 20px 0 10px;
-      cursor: pointer;
-      z-index: 999;
-      gap: 20px;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
-    }
-    
-    .zero-jade-line {
-      height: 1px;
-      width: 50px;
-      opacity: 0.6;
-      transition: all 0.5s ease;
-      position: relative;
-    }
-    .line-left { background: linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)); }
-    .line-right { background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)); }
-    
-    #zero-jade-player-container:hover .zero-jade-line {
-      width: 80px;
-      opacity: 1;
-      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
-    }
-    
-    #zero-player-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      transition: transform 0.3s;
-    }
-    #zero-player-icon:hover { transform: scale(1.1); }
-    
-    .jade-disc-wrapper {
-      width: 32px;
-      height: 32px;
-      position: relative;
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-    }
-    
-    .jade-disc {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #d9d9d9);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      position: relative;
-      animation: zero-jade-rotate 4s linear infinite;
-      animation-play-state: paused;
-    }
-    
-    .jade-disc::after {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 8px; height: 8px;
-      background-color: transparent;
-      border-radius: 50%;
-      border: 1px solid rgba(200, 200, 200, 0.3);
-      box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
-    }
-    
-    .jade-disc::before {
-      content: '';
-      position: absolute;
-      top: 4px; left: 50%;
-      transform: translateX(-50%);
-      width: 2px; height: 6px;
-      background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 2px;
-      box-shadow: 0 0 2px rgba(255,255,255,1);
-    }
-    
-    @keyframes zero-jade-rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    
-    #zero-player-icon.paused .jade-disc {
-      animation-play-state: paused;
-      filter: brightness(0.95);
-    }
-    
-    #zero-player-icon.playing .jade-disc {
-      animation-play-state: running;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 5px rgba(200, 230, 255, 0.4);
-      filter: brightness(1.05);
-    }
-    
-    /* 播放器控制栏 */
-    .player-controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 40px;
-      padding: 8px 20px;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(4px);
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .ctrl-btn {
-      background: transparent;
-      border: none;
-      color: rgba(255,255,255,0.7);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .ctrl-btn:hover { color: #fff; transform: scale(1.1); }
-    
-    .ctrl-btn svg { width: 18px; height: 18px; fill: currentColor; }
-    
-    .song-name {
-      font-size: 12px;
-      letter-spacing: 1px;
-      color: rgba(255,255,255,0.6);
-      min-width: 120px;
-      text-align: center;
-      font-family: 'Noto Serif SC', serif;
-    }
-    
     /* ========== 模块二：神佛不渡 ========== */
     .module-world { margin-bottom: 60px; }
     
@@ -711,6 +713,11 @@
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(4px);
+      /* 宽:高 = 3:4，即高度 = 宽度 * 4/3 */
+      aspect-ratio: 3 / 4;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
     
     .zero-module-nav-container input[type="radio"] { display: none; }
@@ -718,6 +725,7 @@
     .z-module-nav {
       display: flex;
       border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
     }
     
     .z-module-nav label {
@@ -760,13 +768,23 @@
     .z-module-content-wrapper {
       position: relative;
       padding: 16px;
-      min-height: 250px;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
     }
     
     .z-module-panel {
       display: none;
       animation: zeroFadeIn 0.5s ease-out;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }
+    
+    .z-module-panel::-webkit-scrollbar { width: 2px; }
+    .z-module-panel::-webkit-scrollbar-track { background: transparent; }
+    .z-module-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 0; }
     
     #z-mod-tab1:checked ~ .z-module-content-wrapper .z-mp-1,
     #z-mod-tab2:checked ~ .z-module-content-wrapper .z-mp-2 {
@@ -907,11 +925,10 @@
       position: absolute;
       left: 6px;
       top: 0;
-      bottom: 0;
       width: 2px;
       background: linear-gradient(to bottom, #8b2020, #c45c5c, #8b2020);
       box-shadow: 0 0 8px rgba(196, 92, 92, 0.4);
-      transition: height 0.5s ease;
+      /* 初始高度由JS计算 */
     }
     
     .plot-season {
@@ -933,27 +950,46 @@
       z-index: 2;
     }
     
+    /* 剧情标题 — 默认态第一行红色 */
     .plot-header {
       cursor: pointer;
-      font-size: 14px;
-      color: #fff;
-      letter-spacing: 1px;
       padding: 4px 0;
       transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
     }
     
     .plot-header:hover {
-      color: #e8b4b8;
       text-shadow: 0 0 8px rgba(196, 92, 92, 0.4);
     }
     
+    .plot-header .plot-title-main {
+      font-size: 14px;
+      color: #e8b4b8;
+      letter-spacing: 1px;
+      display: block;
+      transition: all 0.3s ease;
+    }
+    
+    .plot-header .plot-title-sub {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      letter-spacing: 0.5px;
+      display: block;
+      transition: all 0.3s ease;
+    }
+    
+    /* 激活态：第二行变小 */
+    .plot-header.open .plot-title-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.45);
+    }
+    
     .plot-header .plot-arrow {
+      display: inline-block;
       margin-right: 8px;
       font-size: 10px;
       transition: transform 0.3s ease;
       color: rgba(196, 92, 92, 0.8);
+      vertical-align: middle;
     }
     
     .plot-header.open .plot-arrow { transform: rotate(90deg); }
@@ -1016,6 +1052,31 @@
 </head>
 <body>
   <div class="page-wrapper">
+    
+    <!-- ===== 播放器（置顶） ===== -->
+    <div class="player-section">
+      <div id="zero-jade-player-container" onclick="togglePlay()">
+        <div class="zero-jade-line line-left"></div>
+        <div id="zero-player-icon" class="paused">
+          <div class="jade-disc-wrapper">
+            <div class="jade-disc"></div>
+          </div>
+        </div>
+        <div class="zero-jade-line line-right"></div>
+        <audio id="zero-audio-engine" preload="auto"></audio>
+      </div>
+      
+      <div class="player-controls">
+        <button class="ctrl-btn" id="playModeBtn" onclick="event.stopPropagation(); togglePlayMode()" title="顺序播放">
+          <svg id="modeSequential" viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+          <svg id="modeLoop" viewBox="0 0 24 24" style="display:none"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        </button>
+        <div class="song-name" id="songName">天龙八部之宿敌</div>
+        <button class="ctrl-btn" id="nextBtn" onclick="event.stopPropagation(); nextSong()" title="下一首">
+          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+    </div>
     
     <!-- ===== 模块一：角色介绍 ===== -->
     <div class="module-character">
@@ -1224,29 +1285,6 @@
         
       </div>
       
-      <!-- 播放器 -->
-      <div id="zero-jade-player-container" onclick="togglePlay()">
-        <div class="zero-jade-line line-left"></div>
-        <div id="zero-player-icon" class="paused">
-          <div class="jade-disc-wrapper">
-            <div class="jade-disc"></div>
-          </div>
-        </div>
-        <div class="zero-jade-line line-right"></div>
-        <audio id="zero-audio-engine" preload="auto"></audio>
-      </div>
-      
-      <div class="player-controls">
-        <button class="ctrl-btn" id="playModeBtn" onclick="event.stopPropagation(); togglePlayMode()" title="顺序播放">
-          <svg id="modeSequential" viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
-          <svg id="modeLoop" viewBox="0 0 24 24" style="display:none"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
-        </button>
-        <div class="song-name" id="songName">天龙八部之宿敌</div>
-        <button class="ctrl-btn" id="nextBtn" onclick="event.stopPropagation(); nextSong()" title="下一首">
-          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-        </button>
-      </div>
-      
       <!-- 别久不成悲 -->
       <div class="mufy-poetic-wrapper">
         <div class="mufy-slash-container">
@@ -1367,20 +1405,7 @@
               <div class="npc-desc">魔尊，很坏，但背锅王，火车难题选择压死所有人的人。</div>
             </div>
             
-            <!-- 折叠栏：配角＆NPC速查备注 -->
-            <div class="npc-toggle">
-              <div class="npc-toggle-header" onclick="toggleNpc(this)">
-                <span class="npc-toggle-arrow">▶</span>
-                <span>配角＆NPC速查（备注内容）</span>
-              </div>
-              <div class="npc-toggle-content">
-                <div class="npc-item" style="margin-top:10px;">
-                  <div class="npc-name">火车难题隐喻</div>
-                  <div class="npc-desc">各角色面对道德困境时的立场分类，用于快速理解人物性格底色。</div>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -1391,14 +1416,15 @@
     <div class="module-plot">
       <div class="module-title">剧 情 简 介</div>
       
-      <div class="plot-timeline">
+      <div class="plot-timeline" id="plotTimeline">
         <div class="plot-timeline-line" id="timelineLine"></div>
         
         <div class="plot-season">
           <div class="plot-dot"></div>
           <div class="plot-header" onclick="togglePlot(this)">
             <span class="plot-arrow">▶</span>
-            <span>春【葬礼与重逢】：葬礼后偶遇死者宋知世</span>
+            <span class="plot-title-main">春【葬礼与重逢】</span>
+            <span class="plot-title-sub">葬礼后偶遇死者宋知世</span>
           </div>
           <div class="plot-content">
             <p>头七之夜，是阴阳交替最为微妙的时辰。按照修真界的规矩，这一天逝者的魂魄会循着生前的羁绊归来，而后又会被阳间的烟火与亲人的心意重新送上归途。</p>
@@ -1427,7 +1453,8 @@
           <div class="plot-dot"></div>
           <div class="plot-header" onclick="togglePlot(this)">
             <span class="plot-arrow">▶</span>
-            <span>夏【无名村惨案】：窥见恶意的一角，北朔来小醋一把</span>
+            <span class="plot-title-main">夏【无名村惨案】</span>
+            <span class="plot-title-sub">窥见恶意的一角，北朔来小醋一把</span>
           </div>
           <div class="plot-content">
             <p>北朔将这里的一切细节默默记下。</p>
@@ -1449,7 +1476,8 @@
           <div class="plot-dot"></div>
           <div class="plot-header" onclick="togglePlot(this)">
             <span class="plot-arrow">▶</span>
-            <span>秋【鬼王娶亲】：秘境中叶子休结了冥婚</span>
+            <span class="plot-title-main">秋【鬼王娶亲】</span>
+            <span class="plot-title-sub">秘境中叶子休结了冥婚</span>
           </div>
           <div class="plot-content">
             <p>"一拜天地——"</p>
@@ -1480,7 +1508,8 @@
           <div class="plot-dot"></div>
           <div class="plot-header" onclick="togglePlot(this)">
             <span class="plot-arrow">▶</span>
-            <span>冬【大仇得报】：温群死后，天道觉得宋知世只能活一百天，叶子休好像不这么觉得</span>
+            <span class="plot-title-main">冬【大仇得报】</span>
+            <span class="plot-title-sub">温群死后，天道觉得宋知世只能活一百天，叶子休好像不这么觉得</span>
           </div>
           <div class="plot-content">
             <p>？？？预览暂未解锁？？？</p>
@@ -1596,7 +1625,7 @@
     loadTrack(currentIndex);
     setTimeout(() => { togglePlay(); }, 1000);
     
-    /* ========== 剧情展开 ========== */
+    /* ========== 剧情展开（修复时间线高度） ========== */
     function togglePlot(header) {
       const content = header.nextElementSibling;
       const isOpen = content.classList.contains('open');
@@ -1609,14 +1638,17 @@
         header.classList.add('open');
       }
       
-      // 重新计算时间线高度
-      setTimeout(updateTimeline, 600);
+      // 强制重新计算时间线高度
+      requestAnimationFrame(() => {
+        updateTimeline();
+      });
     }
     
     function updateTimeline() {
-      const timeline = document.querySelector('.plot-timeline');
+      const timeline = document.getElementById('plotTimeline');
       const line = document.getElementById('timelineLine');
       if (timeline && line) {
+        // 获取时间线容器的实际滚动高度
         line.style.height = timeline.scrollHeight + 'px';
       }
     }
@@ -1624,6 +1656,15 @@
     // 初始化时间线高度
     window.addEventListener('load', updateTimeline);
     window.addEventListener('resize', updateTimeline);
+    
+    /* 使用 ResizeObserver 监听内容变化，确保折叠时时间线正确收缩 */
+    const plotTimeline = document.getElementById('plotTimeline');
+    if (plotTimeline && typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        updateTimeline();
+      });
+      ro.observe(plotTimeline);
+    }
     
     /* ========== NPC折叠 ========== */
     function toggleNpc(header) {
